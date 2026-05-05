@@ -12,7 +12,7 @@ class AdminController extends Controller
     public function dashboard()
     {
         return response()->json([
-            'users' => User::count(),
+            'users' => User::where('is_admin', false)->count(),
             'official_challenges' => Challenge::count(),
             'community_challenges' => CommunityChallenge::count(),
             'pending_community_challenges' => CommunityChallenge::where('status', 'pending')->count(),
@@ -24,6 +24,7 @@ class AdminController extends Controller
     {
         return response()->json(
             User::select('id', 'name', 'email', 'xp', 'level', 'energy', 'is_admin', 'created_at')
+                ->where('is_admin', false)
                 ->orderBy('created_at', 'desc')
                 ->get()
         );
@@ -109,7 +110,8 @@ class AdminController extends Controller
     public function communityChallenges()
     {
         return response()->json(
-            CommunityChallenge::orderBy('likes', 'desc')
+            CommunityChallenge::orderBy('status', 'asc')
+                ->orderBy('likes', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->get()
         );
@@ -141,8 +143,9 @@ class AdminController extends Controller
         );
 
         return response()->json([
-            'message' => 'Community challenge approved and added as official.',
-            'challenge' => $challenge,
+            'message' => 'Player challenge approved and added as official.',
+            'community_challenge' => $community,
+            'official_challenge' => $challenge,
         ]);
     }
 
