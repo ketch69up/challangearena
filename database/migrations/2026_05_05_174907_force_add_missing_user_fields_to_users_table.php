@@ -41,8 +41,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // keep empty to avoid deleting important production data columns
-        });
+        // Intentionally empty to avoid deleting production user data columns.
     }
 };

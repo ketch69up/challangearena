@@ -11,15 +11,49 @@ return new class extends Migration
         if (!Schema::hasTable('community_challenges')) {
             Schema::create('community_challenges', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+                $table->unsignedBigInteger('user_id')->nullable();
                 $table->string('title');
                 $table->text('description');
-                $table->string('difficulty');
+                $table->string('difficulty')->default('easy');
                 $table->integer('xp_reward')->default(10);
                 $table->integer('likes')->default(0);
                 $table->integer('dislikes')->default(0);
                 $table->string('status')->default('pending');
                 $table->timestamps();
+            });
+        } else {
+            Schema::table('community_challenges', function (Blueprint $table) {
+                if (!Schema::hasColumn('community_challenges', 'user_id')) {
+                    $table->unsignedBigInteger('user_id')->nullable();
+                }
+
+                if (!Schema::hasColumn('community_challenges', 'title')) {
+                    $table->string('title')->default('Untitled');
+                }
+
+                if (!Schema::hasColumn('community_challenges', 'description')) {
+                    $table->text('description')->nullable();
+                }
+
+                if (!Schema::hasColumn('community_challenges', 'difficulty')) {
+                    $table->string('difficulty')->default('easy');
+                }
+
+                if (!Schema::hasColumn('community_challenges', 'xp_reward')) {
+                    $table->integer('xp_reward')->default(10);
+                }
+
+                if (!Schema::hasColumn('community_challenges', 'likes')) {
+                    $table->integer('likes')->default(0);
+                }
+
+                if (!Schema::hasColumn('community_challenges', 'dislikes')) {
+                    $table->integer('dislikes')->default(0);
+                }
+
+                if (!Schema::hasColumn('community_challenges', 'status')) {
+                    $table->string('status')->default('pending');
+                }
             });
         }
     }
