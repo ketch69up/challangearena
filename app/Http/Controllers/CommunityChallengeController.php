@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Challenge;
 use App\Models\CommunityChallenge;
 use App\Models\CommunityChallengeVote;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class CommunityChallengeController extends Controller
 {
@@ -12,7 +14,14 @@ class CommunityChallengeController extends Controller
     {
         $challenges = CommunityChallenge::orderBy('likes', 'desc')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($challenge) {
+                $challenge->type_label = $challenge->status === 'approved'
+                    ? 'Official Challenge'
+                    : 'Player Challenge';
+
+                return $challenge;
+            });
 
         return response()->json($challenges);
     }
@@ -46,7 +55,7 @@ class CommunityChallengeController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Community challenge submitted!',
+            'message' => 'Player challenge submitted!',
             'challenge' => $challenge,
         ]);
     }
@@ -92,8 +101,10 @@ class CommunityChallengeController extends Controller
 
             $challenge->save();
 
+            $approvalMessage = $this->approveIfNeeded($challenge);
+
             return response()->json([
-                'message' => 'Vote saved!',
+                'message' => $approvalMessage ?: 'Vote saved!',
                 'challenge' => $challenge,
             ]);
         }
@@ -120,9 +131,49 @@ class CommunityChallengeController extends Controller
 
         $challenge->save();
 
+        $approvalMessage = $this->approveIfNeeded($challenge);
+
         return response()->json([
-            'message' => 'Vote changed!',
+            'message' => $approvalMessage ?: 'Vote changed!',
             'challenge' => $challenge,
         ]);
     }
+
+    private function approveIfNeeded(CommunityChallenge $communityChallenge): ?string
+{
+    if ($communityChallenge->likes < 40) {
+        return null;
+    }
+
+    if ($communityChallenge->status === 'approved') {
+        return null;
+    }
+
+    $creatorName = 'Unknown Player';
+
+    if ($communityChallenge->user_id) {
+            $creator = User::find($communityChallenge->user_id);
+        if ($creator) {
+            $creatorName = $creator->name;
+        }
+    }
+
+    $officialTitle = $communityChallenge->title . ' by ' . $creatorName;
+
+    $communityChallenge->status = 'approved';
+    $communityChallenge->save();
+
+    Challenge::updateOrCreate(
+        [
+            'title' => $officialTitle,
+        ],
+        [
+            'description' => $communityChallenge->description,
+            'difficulty' => $communityChallenge->difficulty,
+            'xp_reward' => $communityChallenge->xp_reward ?? 10,
+        ]
+    );
+
+    return 'This player challenge reached 40 likes and became an official challenge!';
+}
 }
