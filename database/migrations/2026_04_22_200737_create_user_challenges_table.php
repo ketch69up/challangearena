@@ -6,20 +6,46 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('user_challenges', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('user_challenges')) {
+            Schema::create('user_challenges', function (Blueprint $table) {
+                $table->id();
+
+                if (!Schema::hasColumn('user_challenges', 'user_id')) {
+                    $table->unsignedBigInteger('user_id')->nullable();
+                }
+
+                if (!Schema::hasColumn('user_challenges', 'challenge_id')) {
+                    $table->unsignedBigInteger('challenge_id')->nullable();
+                }
+
+                $table->string('status')->default('completed');
+                $table->text('proof_text')->nullable();
+
+                $table->timestamps();
+            });
+        } else {
+            Schema::table('user_challenges', function (Blueprint $table) {
+                if (!Schema::hasColumn('user_challenges', 'user_id')) {
+                    $table->unsignedBigInteger('user_id')->nullable();
+                }
+
+                if (!Schema::hasColumn('user_challenges', 'challenge_id')) {
+                    $table->unsignedBigInteger('challenge_id')->nullable();
+                }
+
+                if (!Schema::hasColumn('user_challenges', 'status')) {
+                    $table->string('status')->default('completed');
+                }
+
+                if (!Schema::hasColumn('user_challenges', 'proof_text')) {
+                    $table->text('proof_text')->nullable();
+                }
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('user_challenges');
