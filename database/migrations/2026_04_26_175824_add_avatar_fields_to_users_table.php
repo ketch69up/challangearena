@@ -6,24 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->string('avatar')->default('🧑‍🚀');
-        $table->string('avatar_color')->default('#38bdf8');
-    });
-}
+    {
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'avatar')) {
+                $table->string('avatar')->default('🧑‍🚀');
+            }
 
-    /**
-     * Reverse the migrations.
-     */
+            if (!Schema::hasColumn('users', 'avatar_color')) {
+                $table->string('avatar_color')->default('#38bdf8');
+            }
+        });
+    }
+
     public function down(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn(['avatar', 'avatar_color']);
-    });
-}
+    {
+        Schema::table('users', function (Blueprint $table) {
+            if (Schema::hasColumn('users', 'avatar')) {
+                $table->dropColumn('avatar');
+            }
+
+            if (Schema::hasColumn('users', 'avatar_color')) {
+                $table->dropColumn('avatar_color');
+            }
+        });
+    }
 };
