@@ -7,6 +7,7 @@ use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\ProofController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\CommunityChallengeController;
+use App\Http\Controllers\AdminController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -76,6 +77,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/profile', [AuthController::class, 'profile']);
+    Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+
+    Route::get('/users', [AdminController::class, 'users']);
+    Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+
+    Route::get('/challenges', [AdminController::class, 'challenges']);
+    Route::post('/challenges', [AdminController::class, 'createChallenge']);
+    Route::put('/challenges/{id}', [AdminController::class, 'updateChallenge']);
+    Route::delete('/challenges/{id}', [AdminController::class, 'deleteChallenge']);
+
+    Route::get('/community-challenges', [AdminController::class, 'communityChallenges']);
+    Route::post('/community-challenges/{id}/approve', [AdminController::class, 'approveCommunityChallenge']);
+    Route::delete('/community-challenges/{id}', [AdminController::class, 'deleteCommunityChallenge']);
+});
 
     Route::get('/challenges/random', [ChallengeController::class, 'random']);
     Route::post('/challenges/skip', [ChallengeController::class, 'skip']);
