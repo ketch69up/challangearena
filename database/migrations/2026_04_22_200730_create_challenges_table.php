@@ -6,20 +6,38 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('challenges', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('challenges')) {
+            Schema::create('challenges', function (Blueprint $table) {
+                $table->id();
+                $table->string('title')->nullable();
+                $table->text('description')->nullable();
+                $table->string('difficulty')->default('easy');
+                $table->integer('xp_reward')->default(10);
+                $table->timestamps();
+            });
+        } else {
+            Schema::table('challenges', function (Blueprint $table) {
+                if (!Schema::hasColumn('challenges', 'title')) {
+                    $table->string('title')->nullable();
+                }
+
+                if (!Schema::hasColumn('challenges', 'description')) {
+                    $table->text('description')->nullable();
+                }
+
+                if (!Schema::hasColumn('challenges', 'difficulty')) {
+                    $table->string('difficulty')->default('easy');
+                }
+
+                if (!Schema::hasColumn('challenges', 'xp_reward')) {
+                    $table->integer('xp_reward')->default(10);
+                }
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('challenges');
