@@ -1,0 +1,65 @@
+[1mdiff --git a/database/migrations/2026_04_22_200737_create_user_challenges_table.php b/database/migrations/2026_04_22_200737_create_user_challenges_table.php[m
+[1mindex a82eedf..3f4779e 100644[m
+[1m--- a/database/migrations/2026_04_22_200737_create_user_challenges_table.php[m
+[1m+++ b/database/migrations/2026_04_22_200737_create_user_challenges_table.php[m
+[36m@@ -6,22 +6,48 @@[m
+ [m
+ return new class extends Migration[m
+ {[m
+[31m-    /**[m
+[31m-     * Run the migrations.[m
+[31m-     */[m
+     public function up(): void[m
+     {[m
+[31m-        Schema::create('user_challenges', function (Blueprint $table) {[m
+[31m-            $table->id();[m
+[31m-            $table->timestamps();[m
+[31m-        });[m
+[32m+[m[32m        if (!Schema::hasTable('user_challenges')) {[m
+[32m+[m[32m            Schema::create('user_challenges', function (Blueprint $table) {[m
+[32m+[m[32m                $table->id();[m
+[32m+[m
+[32m+[m[32m                if (!Schema::hasColumn('user_challenges', 'user_id')) {[m
+[32m+[m[32m                    $table->unsignedBigInteger('user_id')->nullable();[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                if (!Schema::hasColumn('user_challenges', 'challenge_id')) {[m
+[32m+[m[32m                    $table->unsignedBigInteger('challenge_id')->nullable();[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                $table->string('status')->default('completed');[m
+[32m+[m[32m                $table->text('proof_text')->nullable();[m
+[32m+[m
+[32m+[m[32m                $table->timestamps();[m
+[32m+[m[32m            });[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            Schema::table('user_challenges', function (Blueprint $table) {[m
+[32m+[m[32m                if (!Schema::hasColumn('user_challenges', 'user_id')) {[m
+[32m+[m[32m                    $table->unsignedBigInteger('user_id')->nullable();[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                if (!Schema::hasColumn('user_challenges', 'challenge_id')) {[m
+[32m+[m[32m                    $table->unsignedBigInteger('challenge_id')->nullable();[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                if (!Schema::hasColumn('user_challenges', 'status')) {[m
+[32m+[m[32m                    $table->string('status')->default('completed');[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m                if (!Schema::hasColumn('user_challenges', 'proof_text')) {[m
+[32m+[m[32m                    $table->text('proof_text')->nullable();[m
+[32m+[m[32m                }[m
+[32m+[m[32m            });[m
+[32m+[m[32m        }[m
+     }[m
+ [m
+[31m-    /**[m
+[31m-     * Reverse the migrations.[m
+[31m-     */[m
+     public function down(): void[m
+     {[m
+         Schema::dropIfExists('user_challenges');[m
+     }[m
+[31m-};[m
+[32m+[m[32m};[m
+\ No newline at end of file[m
